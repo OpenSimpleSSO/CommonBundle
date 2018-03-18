@@ -1,0 +1,32 @@
+{
+    "name": "simplesso/common-bundle",
+    "type": "symfony-bundle",
+    "description": "Bundle providing common tools for SimpleSSO server and for Symfony clients.",
+    "keyword": [
+        "Symfony",
+        "Bundle",
+        "SimpleSSO",
+        "Tools",
+        "SSO",
+        "Authentication"
+    ],
+    "licence": "MIT",
+    "authors": [
+        {
+            "name": "Vinorcola",
+            "email": "vinorcola@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.1.3",
+        "symfony/dependency-injection": "^4.0",
+        "symfony/http-kernel": "^4.0",
+        "symfony/security": "^4.0",
+        "ramsey/uuid": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "SimpleSSO\\CommonBundle\\": "src"
+        }
+    }
+}
