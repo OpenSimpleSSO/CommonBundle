@@ -8,7 +8,7 @@ use Throwable;
 /**
  * An OpenSSL error occurred.
  */
-class OpenSSLException extends RuntimeException
+class OpenSslException extends RuntimeException
 {
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {

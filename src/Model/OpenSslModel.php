@@ -2,7 +2,7 @@
 
 namespace SimpleSSO\CommonBundle\Model;
 
-use SimpleSSO\CommonBundle\Exception\OpenSSLException;
+use SimpleSSO\CommonBundle\Exception\OpenSslException;
 
 /**
  * A wrapper model over OpenSSL.
@@ -40,12 +40,12 @@ class OpenSslModel
     {
         $publicKey = openssl_pkey_get_public('file://' . $this->publicKeyFilePath);
         if ($publicKey === false) {
-            throw new OpenSSLException('Could not read server\'s public key.');
+            throw new OpenSslException('Could not read server\'s public key.');
         }
 
         $details = openssl_pkey_get_details($publicKey);
         if ($details === false) {
-            throw new OpenSSLException('Could not extract details from public key.');
+            throw new OpenSslException('Could not extract details from public key.');
         }
 
         return $details['key'];
@@ -61,11 +61,11 @@ class OpenSslModel
     {
         $privateKey = openssl_pkey_get_private('file://' . $this->privateKeyFilePath);
         if ($privateKey === false) {
-            throw new OpenSSLException('Could not read server\'s private key.');
+            throw new OpenSslException('Could not read server\'s private key.');
         }
 
         if (!openssl_sign($data, $signature, $privateKey)) {
-            throw new OpenSSLException('Could not sign the data.');
+            throw new OpenSslException('Could not sign the data.');
         }
 
         return base64_encode($signature);
@@ -89,7 +89,7 @@ class OpenSslModel
                 return true;
 
             default:
-                throw new OpenSSLException('The token signature could not be checked.');
+                throw new OpenSslException('The token signature could not be checked.');
         }
     }
 
@@ -103,7 +103,7 @@ class OpenSslModel
     public function encrypt(string $data, string $publicKey): string
     {
         if (!openssl_public_encrypt($data, $encryptedData, $publicKey)) {
-            throw new OpenSSLException('The data could not be encrypted');
+            throw new OpenSslException('The data could not be encrypted');
         }
 
         return base64_encode($encryptedData);
@@ -119,11 +119,11 @@ class OpenSslModel
     {
         $privateKey = openssl_pkey_get_private('file://' . $this->privateKeyFilePath);
         if ($privateKey === false) {
-            throw new OpenSSLException('Could not read server\'s private key.');
+            throw new OpenSslException('Could not read server\'s private key.');
         }
 
         if (!openssl_private_decrypt(base64_decode($data), $decryptedData, $privateKey)) {
-            throw new OpenSSLException('The data could not be decrypted.');
+            throw new OpenSslException('The data could not be decrypted.');
         }
 
         return $decryptedData;
