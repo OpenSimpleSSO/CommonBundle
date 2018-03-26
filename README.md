@@ -115,6 +115,56 @@ authentication:
 
 ### User and User provider
 
-The way you store the users is completely up to you. You need to provide a user provider that will fetch the user using the SimpleSSO server id of the user. This mean you have to keep this id (which is an UUID) stored so you can fetch users authenticating.
+The way you store the users is completely up to you. You need to provide a user provider that will fetch the user using the id of the user. This mean you have to keep this id (which is an UUID) stored so you can fetch users authenticating.
 
 If the user is not found by the user provider, a `authentication.unknownUserAuthenticated` event is thrown, giving you the possibility to create the user and return it to the authentication system (check `SimpleSSO\CommoneBundle\Event\UserEvent`). This is the last chance before making the authentication fail.
+
+We provide some basic user provider, but it is recommended that you implement your own. Use them for inspiration.
+
+#### A) The simple in memory user provider
+
+Implementation in `SimpleSSO\CommonBundle\Security\UserProvider\InMemory`.
+
+This simple user provider do not stores anything in a persistent way. It fetches the profile information from the SimpleSSO server API each time the user is authenticated.
+
+To use this user provider, you need to register it as a service, and configure it in the security config:
+
+```yaml
+# config/packages/simplesso_common.yaml
+
+services:
+    # ...
+
+    SimpleSSO\CommonBundle\Security\UserProvider\InMemory\UserProvider: ~
+```
+
+```yaml
+# config/packages/security.yaml
+
+security:
+    providers:
+        simple_in_memory:
+            id: SimpleSSO\CommonBundle\Security\UserProvider\InMemory\UserProvider
+
+    firewalls:
+        main:
+            provider: simple_in_memory # Use it in your main firewall.
+            # ...
+```
+
+By default, it will instantiate a `SimpleSSO\CommonBundle\Security\UserProvider\InMemory\SimpleInMemoryUser` object to stores the user's profile. The object is then serialized in session in the security token. You can configure another class that you implemented if needed. This class must implement `SimpleSSO\CommonBundle\Security\UserProvider\SimpleSSOUserInterface`.
+
+```yaml
+# config/packages/simplesso_common.yaml
+
+services:
+    # ...
+
+    SimpleSSO\CommonBundle\Security\UserProvider\InMemory\UserProvider:
+        arguments:
+            $userClass: App\Model\Data\MyCustomSimpleSSOUser
+```
+
+#### B) A Doctrine based user provider
+
+TODO.

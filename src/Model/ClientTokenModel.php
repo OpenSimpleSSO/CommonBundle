@@ -2,6 +2,8 @@
 
 namespace SimpleSSO\CommonBundle\Model;
 
+use DateTime;
+use Ramsey\Uuid\Uuid;
 use SimpleSSO\CommonBundle\Model\Data\SignedToken;
 
 class ClientTokenModel extends TokenModel
@@ -32,6 +34,20 @@ class ClientTokenModel extends TokenModel
     public function emitTokenForAuthServer(array $data): SignedToken
     {
         return $this->emitToken($data, $this->authServerModel->getPublicKey());
+    }
+
+    /**
+     * Emit an access token with the given nonce.
+     *
+     * @param string|null $nonce
+     * @return SignedToken
+     */
+    public function emitAccessToken(string $nonce = null): SignedToken
+    {
+        return $this->emitTokenForAuthServer([
+            'nonce' => $nonce ?? Uuid::uuid4()->toString(),
+            'time'  => (new DateTime())->format(DATE_ISO8601),
+        ]);
     }
 
     /**

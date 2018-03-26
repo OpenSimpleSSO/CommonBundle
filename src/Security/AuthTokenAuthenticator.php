@@ -148,10 +148,7 @@ class AuthTokenAuthenticator extends AbstractGuardAuthenticator
     {
         $nonce = Uuid::uuid4()->toString();
         $request->getSession()->set(self::SESSION_NONCE, $nonce);
-        $token = $this->tokenModel->emitTokenForAuthServer([
-            'nonce' => $nonce,
-            'time'  => (new \DateTime())->format(DATE_ISO8601),
-        ]);
+        $token = $this->tokenModel->emitAccessToken($nonce);
 
         return new RedirectResponse($this->tokenModel->generateAuthenticationUrl($token));
     }
