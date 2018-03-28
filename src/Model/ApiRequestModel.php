@@ -2,9 +2,9 @@
 
 namespace SimpleSSO\CommonBundle\Model;
 
-use DateTime;
-use Ramsey\Uuid\Uuid;
 use RuntimeException;
+use SimpleSSO\CommonBundle\Exception\ApiBadRequestException;
+use SimpleSSO\CommonBundle\Model\Data\SignedToken;
 
 class ApiRequestModel
 {
@@ -57,10 +57,10 @@ class ApiRequestModel
         curl_close($connection);
         $decodedResult = json_decode($rawResult, true);
         if (!is_array($decodedResult)) {
-            throw new RuntimeException('Invalid JSON in the response.');
+            throw new RuntimeException('Invalid JSON in the response: ' . $rawResult);
         }
         if (key_exists('ok', $decodedResult) && !$decodedResult['ok']) {
-            throw new RuntimeException('Error ' . $decodedResult['status'] . ': ' . $decodedResult['error']);
+            throw new ApiBadRequestException($decodedResult);
         }
 
         return $decodedResult;
@@ -70,16 +70,126 @@ class ApiRequestModel
      * Get the profile of the user identified by the given id.
      *
      * @param string $userId
-     * @return array
+     * @return array The user's profile.
      */
     public function getUserProfile(string $userId): array
     {
-        $accessToken = $this->tokenModel->emitAccessToken();
+        $response = $this->request(
+            'GET',
+            $this->authServerModel->getHost() . '/api/user/' . $userId,
+            null,
+            $this->generateClientAuthenticationHeaders()
+        );
 
-        return $this->request('GET', $this->authServerModel->getHost() . '/api/user/' . $userId, null, [
+        return $response['data'];
+    }
+
+    /**
+     * Register a new user in the auth server.
+     *
+     * @param array $profileData
+     * @return array The user's profile updated.
+     */
+    public function registerUser(array $profileData): array
+    {
+        $response = $this->request(
+            'POST',
+            $this->authServerModel->getHost() . '/api/user/register',
+            json_encode($profileData),
+            $this->generateClientAuthenticationHeaders()
+        );
+
+        return $response['data'];
+    }
+
+    /**
+     * Update the user's profile.
+     *
+     * @param string $userId
+     * @param array  $profileData
+     * @return array The user's profile updated.
+     */
+    public function updateUserProfile(string $userId, array $profileData): array
+    {
+        $response = $this->request(
+            'PUT',
+            $this->authServerModel->getHost() . '/api/user/' . $userId,
+            json_encode($profileData),
+            $this->generateClientAuthenticationHeaders()
+        );
+
+        return $response['data'];
+    }
+
+    /**
+     * Update the user's password.
+     *
+     * @param string $userId
+     * @param string $password
+     * @return array The user's profile updated.
+     */
+    public function updateUserPassword(string $userId, string $password): array
+    {
+        $response = $this->request(
+            'PUT',
+            $this->authServerModel->getHost() . '/api/user/' . $userId . '/password',
+            json_encode([ 'password' => $password ]),
+            $this->generateClientAuthenticationHeaders()
+        );
+
+        return $response['data'];
+    }
+
+    /**
+     * Enable a user.
+     *
+     * @param string $userId
+     * @return array The user's profile updated.
+     */
+    public function enableUser(string $userId): array
+    {
+        $response = $this->request(
+            'POST',
+            $this->authServerModel->getHost() . '/api/user/' . $userId . '/enable',
+            null,
+            $this->generateClientAuthenticationHeaders()
+        );
+
+        return $response['data'];
+    }
+
+    /**
+     * Disable a user.
+     *
+     * @param string $userId
+     * @return array The user's profile updated.
+     */
+    public function disableUser(string $userId): array
+    {
+        $response = $this->request(
+            'POST',
+            $this->authServerModel->getHost() . '/api/user/' . $userId . '/disable',
+            null,
+            $this->generateClientAuthenticationHeaders()
+        );
+
+        return $response['data'];
+    }
+
+    /**
+     * @param SignedToken $token
+     * @return array
+     */
+    public function generateClientAuthenticationHeaders(SignedToken $token = null): array
+    {
+        if (!$token) {
+            $token = $this->tokenModel->emitAccessToken();
+        }
+
+        return [
             'SSSO-Client'                 => $this->authServerModel->getClientId(),
-            'SSSO-Access-Token'           => $accessToken->token,
-            'SSSO-Access-Token-Signature' => $accessToken->signature,
-        ]);
+            'SSSO-Access-Token'           => $token->token,
+            'SSSO-Access-Token-Signature' => $token->signature,
+        ];
     }
 }
