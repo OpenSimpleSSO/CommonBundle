@@ -37,8 +37,7 @@ class UserProvider implements UserProviderInterface
 
     public function loadUserByUsername($username)
     {
-        $response = $this->apiRequestModel->getUserProfile($username);
-        $userData = $response['data'];
+        $userData = $this->apiRequestModel->getUserProfile($username);
 
         $userClass = $this->userClass ?? SimpleInMemoryUser::class;
         /** @var SimpleSSOUserInterface $user */
