@@ -3,6 +3,7 @@
 namespace SimpleSSO\CommonBundle\Security;
 
 use SimpleSSO\CommonBundle\Exception\InvalidTokenException;
+use SimpleSSO\CommonBundle\Model\ApiRequestModel;
 use SimpleSSO\CommonBundle\Model\ClientTokenModel;
 use SimpleSSO\CommonBundle\Model\Data\SignedToken;
 use SimpleSSO\CommonBundle\Event\UserEvent;
@@ -20,7 +21,13 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class AuthTokenAuthenticator extends AbstractGuardAuthenticator
 {
+    public const UNKNOWN_USER_AUTHENTICATED = 'authentication.unknownUserAuthenticated';
     private const SESSION_NONCE = 'security.authentication.nonce';
+
+    /**
+     * @var ApiRequestModel
+     */
+    private $apiRequestModel;
 
     /**
      * @var ClientTokenModel
@@ -35,13 +42,16 @@ class AuthTokenAuthenticator extends AbstractGuardAuthenticator
     /**
      * AuthTokenAuthenticator constructor.
      *
+     * @param ApiRequestModel          $apiRequestModel
      * @param ClientTokenModel         $tokenModel
      * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
+        ApiRequestModel $apiRequestModel,
         ClientTokenModel $tokenModel,
         EventDispatcherInterface $eventDispatcher
     ) {
+        $this->apiRequestModel = $apiRequestModel;
         $this->tokenModel = $tokenModel;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -99,8 +109,8 @@ class AuthTokenAuthenticator extends AbstractGuardAuthenticator
     {
         $user = $userProvider->loadUserByUsername($credentials['userId']);
         if (!$user) {
-            $event = new UserEvent();
-            $this->eventDispatcher->dispatch('authentication.unknownUserAuthenticated', $event);
+            $event = new UserEvent($this->apiRequestModel->getUserProfile($credentials['userId']));
+            $this->eventDispatcher->dispatch(self::UNKNOWN_USER_AUTHENTICATED, $event);
 
             $user = $event->getUser();
         }
