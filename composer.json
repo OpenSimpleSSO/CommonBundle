@@ -24,6 +24,9 @@
         "symfony/http-kernel": "^4.0",
         "symfony/security": "^4.0"
     },
+    "suggest": {
+        "twig/twig": "Provide a 'sso_logout_url' function for Twig templates."
+    },
     "autoload": {
         "psr-4": {
             "SimpleSSO\\CommonBundle\\": "src"

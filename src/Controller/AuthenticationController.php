@@ -2,6 +2,7 @@
 
 namespace SimpleSSO\CommonBundle\Controller;
 
+use LogicException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -20,5 +21,10 @@ class AuthenticationController
         }
 
         return new RedirectResponse($url);
+    }
+
+    public function logout(): void
+    {
+        throw new LogicException('The action should not be called. Please check that you configured the logout path correctly (check README).');
     }
 }

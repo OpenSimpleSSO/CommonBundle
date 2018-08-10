@@ -41,6 +41,11 @@ services:
     SimpleSSO\CommonBundle\Model\OpenSslModel:
         $privateKeyFilePath: '%env(SIMPLESSO_CLIENT_PRIVATE_KEY_PATH)%'
         $publicKeyFilePath: '%env(SIMPLESSO_CLIENT_PUBLIC_KEY_PATH)%'
+
+    SimpleSSO\CommonBundle\Security\LogoutSuccessHandler: ~
+
+    # If you use Twig.
+    SimpleSSO\CommonBundle\Twig\Extension: ~
 ```
 
 As you can see, the services require that you set several environment variables. In development, you can add the following lines to your .env file.
@@ -71,11 +76,13 @@ security:
             guard:
                 authenticators:
                     - SimpleSSO\CommonBundle\Security\AuthTokenAuthenticator
+            logout:
+                success_handler: SimpleSSO\CommonBundle\Security\LogoutSuccessHandler
 ```
 
-### The authentication route
+### The authentication routes
 
-A fallback route must be configured. The SimpleSSO server will redirect the user to this route with an **AuthToken**. For now, you cannot choose the route you want: it must be `/authenticate`.
+A fallback route must be configured. The SimpleSSO server will redirect the user to this route with an **AuthToken**. For now, you cannot choose the route you want: it must be `/authenticate`. A logout route must also be set. It can be whatever you want.
 
 Tag the controller provided with the bundle.
 
@@ -111,6 +118,10 @@ Add the route to the routing. Create the file `config/routes/simplesso_common.ya
 authentication:
     path: /authenticate
     controller: SimpleSSO\CommonBundle\Controller\AuthenticationController::authenticate
+
+logout:
+    path: /logout
+    controller: SimpleSSO\CommonBundle\Controller\AuthenticationController::logout
 ```
 
 ### User and User provider

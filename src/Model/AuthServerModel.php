@@ -60,6 +60,14 @@ class AuthServerModel
     /**
      * @return string
      */
+    public function getLogoutEndPoint(): string
+    {
+        return $this->host . '/logout';
+    }
+
+    /**
+     * @return string
+     */
     public function getClientId(): string
     {
         return $this->clientId;
