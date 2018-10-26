@@ -85,6 +85,23 @@ class ApiRequestModel
     }
 
     /**
+     * @param string $userId
+     * @param string $version
+     * @return bool
+     */
+    public function isUserProfileUpToDate(string $userId, string $version): bool
+    {
+        $response = $this->request(
+            'GET',
+            $this->authServerModel->getHost() . '/api/user/' . $userId . '/check-version/' . $version,
+            null,
+            $this->generateClientAuthenticationHeaders()
+        );
+
+        return $response['data']['isLastVersion'];
+    }
+
+    /**
      * Register a new user in the auth server.
      *
      * @param array $profileData
