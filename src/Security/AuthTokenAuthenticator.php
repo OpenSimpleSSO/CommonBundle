@@ -27,17 +27,17 @@ class AuthTokenAuthenticator extends AbstractGuardAuthenticator
     /**
      * @var ApiRequestModel
      */
-    private $apiRequestModel;
+    protected $apiRequestModel;
 
     /**
      * @var ClientTokenModel
      */
-    private $tokenModel;
+    protected $tokenModel;
 
     /**
      * @var EventDispatcherInterface
      */
-    private $eventDispatcher;
+    protected $eventDispatcher;
 
     /**
      * AuthTokenAuthenticator constructor.
@@ -91,7 +91,7 @@ class AuthTokenAuthenticator extends AbstractGuardAuthenticator
      * @param SessionInterface $session
      * @param string           $nonce
      */
-    private function checkNonce(SessionInterface $session, string $nonce): void
+    protected function checkNonce(SessionInterface $session, string $nonce): void
     {
         if (!$session->has(self::SESSION_NONCE)) {
             throw new AuthenticationException('Authentication failed', 0, new InvalidTokenException('The user session is missing the nonce attribute.'));
